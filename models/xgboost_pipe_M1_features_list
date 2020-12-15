@@ -1,0 +1,9 @@
+0,user_personalized_qstat_knowing_had_explanation_or_not
+1,user_avg_score_cum_on_this_part
+2,user_correct_answers_cum_on_this_part
+3,qstats_answered_correctly
+4,user_avg_score_cum
+5,qstats_prior_question_had_explanation
+6,already_seen
+7,user_activity_cumcount
+8,at_least_one_lesson
