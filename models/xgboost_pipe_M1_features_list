@@ -1,0 +1,11 @@
+feature
+
+user_personalized_qstat_knowing_had_explanation_or_not
+user_avg_score_cum_on_this_part
+user_correct_answers_cum_on_this_part
+qstats_answered_correctly
+user_avg_score_cum
+qstats_prior_question_had_explanation
+already_seen
+user_activity_cumcount
+at_least_one_lesson
