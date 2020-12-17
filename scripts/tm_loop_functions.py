@@ -1,6 +1,10 @@
+import pandas as pd
+import numpy as np
+import random
+
 def user_history_update(content_type_id,
                         content_id,
-                        data_qstats,
+                        qstats,
                         user_history=None,
                         mode='training',    #autre choix : mode exam
                         prior_question_had_explanation=False):
@@ -84,10 +88,10 @@ def user_history_update(content_type_id,
             new_line[f'user_correct_answers_cum_part{part}'] = last_line[f'user_correct_answers_cum_part{part}']\
                                                              + last_line['answered_correctly']
             vars()[f'new_user_questions_count_part{part}']   = last_line[f'user_correct_answers_cum_part{part}']\
-                                                             / last_line[f'user_avg_score_cum_part{part}']\
+                                                             / (last_line[f'user_avg_score_cum_part{part}']+0.000001)\
                                                              + 1
             new_line[f'user_avg_score_cum_part{part}']       = new_line[f'user_correct_answers_cum_part{part}']\
-                                                             / vars()[f'new_user_questions_count_part{part}']
+                                                             / (vars()[f'new_user_questions_count_part{part}']+0.000001)
 
         elif last_content_type_id==1:
             ### TO BE UPDATED IF LAST WAS LECTURE ###
@@ -169,7 +173,8 @@ def training (my_pipeline,
 
 def TOEIC_scoring (my_pipeline,
                    pipeline_features_list,
-                   qstats, user_history,
+                   qstats,
+                    user_history,
                    number_of_questions=100,
                    TOEIC_strategy='random'):
     '''only the random strategy implemented yet'''
@@ -310,7 +315,7 @@ def plot_learning_curve(my_pipeline,
                         number_students=5,
                         training_batch_size=10,
                         number_of_training_batches=10,
-                        training_question_selection_strategy='random')
+                        training_question_selection_strategy='random'):
     result_moy=[]
 
     for i in range(number_students):
@@ -318,13 +323,16 @@ def plot_learning_curve(my_pipeline,
         results=[]
         training_questions=[]
 
-        user_history=user_initial_state
-        results.append(TOEIC_scoring(qstats, user_history))
+        user_history=initialize_profile(initial_experience)
+        results.append(TOEIC_scoring(my_pipeline,
+                                     pipeline_features_list,
+                                     qstats,
+                                     user_history))
         training_questions.append(0)
 
         for j in range(number_of_training_batches):
             training_questions.append(training_questions[-1]+training_batch_size)
-            print(f'entrainement {j*training_batch_size}/{20*5}')
+            print(f'entrainement {j*training_batch_size}/{training_batch_size*number_of_training_batches}')
 
             user_history=training (my_pipeline,
                                    pipeline_features_list,qstats,
@@ -338,4 +346,4 @@ def plot_learning_curve(my_pipeline,
 
         result_moy.append(results)
     stats=np.array(result_moy)
-    plt.plot(training_questions,stats.mean(axis=0))
+    return pd.DataFrame({'training_questions':training_questions,'TOEIC_score':stats.mean(axis=0)}).set_index('training_questions')
